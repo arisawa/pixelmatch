@@ -1,0 +1,9 @@
+/.dockerignore
+/.git
+/.gitignore
+/.travis.yml
+/data
+/Dockerfile
+/node_modules
+/test
+/yarn.lock
