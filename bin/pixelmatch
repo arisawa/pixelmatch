@@ -4,11 +4,13 @@
 'use strict';
 
 const PNG = require('pngjs').PNG;
+const UTIF = require('utif');
 const fs = require('fs');
+const path = require('path');
 const match = require('../.');
 
 if (process.argv.length < 4) {
-    console.log('Usage: imagematch image1.png image2.png [diff.png] [threshold=0.005] [includeAA=false]');
+    console.log('Usage: imagematch image1.(png|tif) image2.(png|tif) [diff.png] [threshold=0.005] [includeAA=false]');
     process.exit(64);
 }
 
@@ -18,8 +20,20 @@ const options = {
     includeAA: includeAA !== undefined && includeAA !== 'false'
 };
 
-const img1 = PNG.sync.read(fs.readFileSync(img1Path));
-const img2 = PNG.sync.read(fs.readFileSync(img2Path));
+const ext1 = path.extname(img1Path);
+const ext2 = path.extname(img2Path);
+
+let img1, img2;
+if (ext1 == '.png' && ext2 == '.png') {
+    img1 = PNG.sync.read(fs.readFileSync(img1Path));
+    img2 = PNG.sync.read(fs.readFileSync(img2Path));
+} else if (ext1 == '.tif' && ext2 == '.tif') {
+    img1 = loadTiff(fs.readFileSync(img1Path));
+    img2 = loadTiff(fs.readFileSync(img2Path));
+} else {
+    console.log('.png or .tif only supported');
+    process.exit(67);
+}
 
 const {width, height} = img1;
 
@@ -41,3 +55,10 @@ if (diff) {
     fs.writeFileSync(diffPath, PNG.sync.write(diff));
 }
 process.exit(diffs ? 66 : 0);
+
+function loadTiff(buf) {
+    const ifds = UTIF.decode(buf);
+    UTIF.decodeImage(buf, ifds[0]);
+    // ifds[0].data = UTIF.toRGBA8(ifds[0]);
+    return ifds[0]
+}

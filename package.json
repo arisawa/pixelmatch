@@ -10,7 +10,8 @@
     "bin/pixelmatch"
   ],
   "dependencies": {
-    "pngjs": "^3.4.0"
+    "pngjs": "^3.4.0",
+    "utif": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^6.4.0",
